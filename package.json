@@ -1,0 +1,38 @@
+{
+  "name": "tomate-mods",
+  "version": "1.0.0",
+  "description": "Common abstraction layer over the Modrinth and Curseforge api",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsup-node",
+    "prepare": "tsup-node",
+    "script": "tsup scripts/index.ts --out-dir scripts-dist --format esm && node scripts-dist/index.mjs"
+  },
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tomate0613/tomate-mods.git"
+  },
+  "author": "Tomate0613",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Tomate0613/tomate-mods/issues"
+  },
+  "homepage": "https://github.com/Tomate0613/tomate-mods#readme",
+  "dependencies": {
+    "@xmcl/mod-parser": "^3.4.2",
+    "@xmcl/unzip": "^2.1.2",
+    "axios": "^1.13.2",
+    "murmur2": "^1.0.2",
+    "node-fetch": "^3.3.2",
+    "p-queue": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.3",
+    "dotenv": "^17.2.3",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3"
+  }
+}

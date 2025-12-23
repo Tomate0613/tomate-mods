@@ -1,0 +1,19 @@
+{
+  "name": "examples",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.17.0",
+  "dependencies": {
+    "tomate-mods": "link:.."
+  },
+  "devDependencies": {
+    "electron": "^39.2.7",
+    "examples": "link:",
+    "tomate-loaders": "github:Tomate0613/tomate-loaders"
+  }
+}
