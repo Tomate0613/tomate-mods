@@ -1,12 +1,12 @@
-import * as T from './types';
+import { ApiProvider, SearchResult, SearchResultHit, Version } from './types';
 
-type Providers = T.ApiProvider[];
+type Providers = ApiProvider[];
 type ProviderId<T extends Providers> = T[number]['id'];
 
 export class TomateMods<T extends Providers> {
-  private providers: Record<ProviderId<T>, T.ApiProvider>;
+  private providers: Record<ProviderId<T>, ApiProvider>;
 
-  private constructor(providers: T.ApiProvider[]) {
+  private constructor(providers: ApiProvider[]) {
     this.providers = Object.fromEntries(
       providers.map((p) => [p.id, p as never])
     ) as never;
@@ -16,7 +16,7 @@ export class TomateMods<T extends Providers> {
     return new TomateMods<T>(providers);
   }
 
-  provider(provider: ProviderId<T>): T.ApiProvider {
+  provider(provider: ProviderId<T>) {
     const p = this.providers[provider];
 
     if (!p) {
@@ -28,7 +28,7 @@ export class TomateMods<T extends Providers> {
     return p;
   }
 
-  getFilename(version: T.Version) {
+  getFilename(version: Version) {
     return version.files[0].filename;
   }
 
@@ -36,9 +36,9 @@ export class TomateMods<T extends Providers> {
     options: {
       dedupe?: typeof dedupeSearch;
     },
-    ...searchResults: T.SearchResult[]
+    ...searchResults: SearchResult[]
   ) {
-    const mergedResults: T.SearchResult = {
+    const mergedResults: SearchResult = {
       hits: [],
       count: 0,
     };
@@ -63,7 +63,7 @@ export class TomateMods<T extends Providers> {
   async fileVersion<K extends ProviderId<T>[]>(path: string, providerIds?: K) {
     const providers = providerIds
       ? providerIds.map(this.provider.bind(this))
-      : (Object.values(this.providers) as T.ApiProvider[]);
+      : (Object.values(this.providers) as ApiProvider[]);
 
     const results = await Promise.allSettled(
       providers.map((provider) =>
@@ -72,7 +72,7 @@ export class TomateMods<T extends Providers> {
             ({
               provider: provider.id,
               version,
-            }) as { provider: K[number]; version: T.Version }
+            }) as { provider: K[number]; version: Version }
         )
       )
     );
@@ -85,8 +85,8 @@ export class TomateMods<T extends Providers> {
   }
 }
 
-function dedupeSearch(hit: T.SearchResultHit, idx: number) {
-  return (_hit: T.SearchResultHit, _idx: number) =>
+function dedupeSearch(hit: SearchResultHit, idx: number) {
+  return (_hit: SearchResultHit, _idx: number) =>
     idx > _idx &&
     (hit.slug === _hit.slug ||
       hit.name === _hit.name ||
