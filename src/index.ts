@@ -16,7 +16,7 @@ export class TomateMods<T extends Providers> {
     return new TomateMods<T>(providers);
   }
 
-  provider(provider: ProviderId<T>) {
+  provider(provider: ProviderId<T>): T.ApiProvider {
     const p = this.providers[provider];
 
     if (!p) {
