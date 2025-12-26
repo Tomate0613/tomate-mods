@@ -7,4 +7,3 @@ export const tomateMods = TomateMods.fromProviders(
     process.env.CURSEFORGE_API_KEY
   )
 );
-
