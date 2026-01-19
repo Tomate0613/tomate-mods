@@ -96,6 +96,10 @@ export class ModrinthVersionQueryParamsBuilder
 {
   _params = new URLSearchParams();
 
+  constructor() {
+    this._params.set('include_changelog', 'false');
+  }
+
   gameVersions(versions: string[]) {
     this._params.set('game_versions', JSON.stringify(versions));
     return this;

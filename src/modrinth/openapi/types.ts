@@ -3221,6 +3221,8 @@ export interface operations {
                 game_versions?: string;
                 /** @description Allows to filter for featured or non-featured versions only */
                 featured?: boolean;
+                /** @description Allows you to toggle the inclusion of the changelog field in the response. It is highly recommended to use include_changelog=false in most cases unless you specifically need the changelog for all versions. */
+                include_changelog?: boolean;
             };
             header?: never;
             path: {

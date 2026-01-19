@@ -63,7 +63,7 @@ export class ModrinthProvider implements T.ApiProvider {
 
   async version(_projectId: string, id: string) {
     const { data: version } = await this.api.get<G<'/version/{}'>>(
-      `/version/${id}`
+      `/version/${id}?include_changelog=false`
     );
 
     return this.mapVersion(version);
@@ -74,7 +74,7 @@ export class ModrinthProvider implements T.ApiProvider {
     queryParams?: string | T.VersionQueryParamsBuilder
   ): Promise<T.Version[]> {
     const { data: versions } = await this.api.get<G<'/project/{}/version'>>(
-      `/project/${projectId}/version?${queryParams}`
+      `/project/${projectId}/version?${queryParams || '?include_changelog=false'}`
     );
 
     return versions.map(this.mapVersion);
