@@ -44,6 +44,10 @@ export class TomateMods<T extends Providers> {
     delete this.providers[providerId];
   }
 
+  get providerIds(): ProviderId<T>[] {
+    return Object.keys(this.providers);
+  }
+
   getFilename(version: Version) {
     return version.files[0].filename;
   }
