@@ -16,6 +16,10 @@ export class TomateMods<T extends Providers> {
     return new TomateMods<T>(providers);
   }
 
+  static fromProvidersDynamic(...providers: Providers) {
+    return new TomateMods<Providers>(providers);
+  }
+
   provider(provider: ProviderId<T>) {
     const p = this.providers[provider];
 
@@ -26,6 +30,18 @@ export class TomateMods<T extends Providers> {
     }
 
     return p;
+  }
+
+  hasProvider(providerId: string): providerId is ProviderId<T> {
+    return !!this.providers[providerId as never];
+  }
+
+  addProvider(provider: Providers extends T ? ApiProvider : never) {
+    this.providers[provider.id as never] = provider as never;
+  }
+
+  removeProvider(providerId: Providers extends T ? string : never) {
+    delete this.providers[providerId];
   }
 
   getFilename(version: Version) {
