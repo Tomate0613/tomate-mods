@@ -1,4 +1,4 @@
-import { tomateMods } from 'setup';
+import { tomateMods } from './setup';
 
 const version = await tomateMods
   .provider('modrinth')

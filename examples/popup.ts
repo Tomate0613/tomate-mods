@@ -1,5 +1,5 @@
 import { BrowserWindow, BrowserWindowConstructorOptions } from 'electron';
-import { tomateMods } from 'setup';
+import { tomateMods } from './setup';
 
 function windowPopup(options?: BrowserWindowConstructorOptions) {
   return new BrowserWindow({

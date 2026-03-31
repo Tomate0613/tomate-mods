@@ -17,7 +17,7 @@ template = template.replace(/{{\s*(.+?)\s*}}/g, (_, filePath) => {
 
   let code = fs.readFileSync(fullPath, "utf-8");
 
-  code = code.replace(/^\s*import\s+\{.*}\s+from\s+['"]setup['"];?\s*$/gm, "");
+  code = code.replace(/^\s*import\s+\{.*}\s+from\s+['"]\.\/setup['"];?\s*$/gm, "");
   code = code.replace(
     /^\s*import\s+\{.*}\s+from\s+['"]\.\/stub['"];?\s*$/gm,
     "",

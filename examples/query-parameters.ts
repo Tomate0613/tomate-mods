@@ -1,4 +1,4 @@
-import { tomateMods } from 'setup';
+import { tomateMods } from './setup';
 import { fabric } from 'tomate-loaders';
 
 const provider = tomateMods.provider('modrinth');

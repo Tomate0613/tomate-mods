@@ -1,17 +1,22 @@
 {
   "compilerOptions": {
     "target": "esnext",
-    "module": "commonjs",
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "skipLibCheck": true,
     "outDir": "dist",
-    "declaration": true,
+    "lib": ["esnext"],
+    "types": ["node"],
     "sourceMap": true,
-    "moduleResolution": "node16"
-  },
-  "include": [
-    "src"
-  ]
+    "declaration": true,
+    "declarationMap": true,
+
+    "isolatedModules": true,
+    "ignoreDeprecations": "6.0",
+    "noUncheckedSideEffectImports": true,
+    "moduleDetection": "force"
+  }
 }

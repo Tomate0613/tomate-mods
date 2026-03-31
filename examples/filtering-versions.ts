@@ -1,4 +1,4 @@
-import { tomateMods } from 'setup';
+import { tomateMods } from './setup';
 import { queryParams } from './stub';
 
 const provider = tomateMods.provider('modrinth');
