@@ -1,4 +1,9 @@
-import { ApiProvider, SearchResult, SearchResultHit, Version } from './types';
+import type {
+  ApiProvider,
+  SearchResult,
+  SearchResultHit,
+  Version,
+} from './types';
 
 type Providers = ApiProvider[];
 type ProviderId<T extends Providers> = T[number]['id'];

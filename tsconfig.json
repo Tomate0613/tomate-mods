@@ -9,7 +9,7 @@
     "outDir": "dist",
     "declaration": true,
     "sourceMap": true,
-    "moduleResolution": "node"
+    "moduleResolution": "node16"
   },
   "include": [
     "src"
