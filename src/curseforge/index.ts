@@ -19,6 +19,10 @@ export class CurseforgeProvider implements T.ApiProvider {
     this.api = new CurseforgeApi(userAgent, apiKey);
   }
 
+  async hello() {
+    await this.api.get<G<'/v1/games'>>('/v1/games');
+  }
+
   async project(id: string) {
     const {
       data: { data: project },
