@@ -1,0 +1,14 @@
+{
+  "Api Get": {
+    "prefix": "apiget",
+    "body": ["this.api.get<G<'$1'>>(`$2`)"],
+    "description": "api get",
+    "scope": ["typescript"]
+  },
+  "Api Post": {
+    "prefix": "apipost",
+    "body": ["this.api.post<P<'$1'>>(`$2`)"],
+    "description": "api post",
+    "scope": ["typescript"]
+  }
+}
