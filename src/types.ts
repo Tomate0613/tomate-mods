@@ -1,4 +1,4 @@
-import { projectTypes, implementedProviders } from "./values";
+import { projectTypes, implementedProviders } from './values';
 
 export type ImplementedProvider = (typeof implementedProviders)[number];
 
