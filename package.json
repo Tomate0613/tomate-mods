@@ -2,7 +2,18 @@
   "name": "tomate-mods",
   "version": "1.0.0",
   "description": "Common abstraction layer over the Modrinth and Curseforge api",
+
   "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs"
+    }
+  }
+
   "scripts": {
     "build": "tsup-node",
     "prepare": "tsup-node",
@@ -34,5 +45,5 @@
     "dotenv": "^17.3.1",
     "tsup": "^8.5.1",
     "typescript": "^6.0.2"
-  }
+  },
 }
