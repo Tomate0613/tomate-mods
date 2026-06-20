@@ -2,20 +2,21 @@
   "name": "tomate-mods",
   "version": "1.0.0",
   "description": "Common abstraction layer over the Modrinth and Curseforge api",
-  "main": "dist/index.js",
+  "main": "dist/index.cjs",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "require": "./dist/index.js",
+      "require": "./dist/index.cjs",
       "import": "./dist/index.mjs"
     }
   },
   "scripts": {
-    "build": "tsup-node",
-    "prepare": "tsup-node",
-    "script": "tsup scripts/index.ts --out-dir scripts-dist --format esm && node scripts-dist/index.mjs"
+    "build": "unbuild",
+    "prepare": "pnpm build",
+    "dev": "unbuild --stub",
+    "script": "node scripts/index.ts"
   },
   "files": [
     "dist"
@@ -33,15 +34,15 @@
   "dependencies": {
     "@xmcl/mod-parser": "^3.4.2",
     "@xmcl/unzip": "^2.1.2",
-    "axios": "^1.16.1",
+    "axios": "^1.18.0",
     "murmur2": "^1.0.2",
     "node-fetch": "^3.3.2",
     "p-queue": "^9.3.0"
   },
   "devDependencies": {
-    "@types/node": "^25.9.1",
+    "@types/node": "^26.0.0",
     "dotenv": "^17.4.2",
-    "tsup": "^8.5.1",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "unbuild": "^3.6.1"
   }
 }
