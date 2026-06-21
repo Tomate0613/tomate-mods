@@ -7,15 +7,16 @@
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "require": "./dist/index.cjs",
-      "import": "./dist/index.mjs"
+      "types": "./dist/esm/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
     }
   },
   "scripts": {
-    "build": "unbuild",
+    "build": "pnpm build:esm && pnpm build:cjs",
+    "build:esm": "tsc -p tsconfig.esm.json",
+    "build:cjs": "tsc -p tsconfig.cjs.json",
     "prepare": "pnpm build",
-    "dev": "unbuild --stub",
     "script": "node scripts/index.ts"
   },
   "files": [
@@ -42,7 +43,6 @@
   "devDependencies": {
     "@types/node": "^26.0.0",
     "dotenv": "^17.4.2",
-    "typescript": "^6.0.3",
-    "unbuild": "^3.6.1"
+    "typescript": "^6.0.3"
   }
 }
