@@ -2,9 +2,9 @@
   "name": "tomate-mods",
   "version": "1.0.0",
   "description": "Common abstraction layer over the Modrinth and Curseforge api",
-  "main": "dist/index.cjs",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/esm/index.d.ts",
@@ -37,7 +37,6 @@
     "@xmcl/unzip": "^2.1.2",
     "axios": "^1.18.0",
     "murmur2": "^1.0.2",
-    "node-fetch": "^3.3.2",
     "p-queue": "^9.3.0"
   },
   "devDependencies": {
