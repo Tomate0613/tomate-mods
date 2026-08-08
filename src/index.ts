@@ -122,4 +122,4 @@ export * from './types';
 export * from './curseforge';
 export * from './modrinth';
 export * from './utils/checkFile';
-export * from './file';
+// export * from './file';
