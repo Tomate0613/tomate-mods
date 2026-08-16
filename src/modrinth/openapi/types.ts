@@ -459,7 +459,7 @@ export type paths = {
         get?: never;
         put?: never;
         /**
-         * Latest versions of multiple project from hashes, loader(s), and game version(s)
+         * Latest versions of multiple projects from hashes, loader(s), and game version(s)
          * @description This is the same as [`/version_file/{hash}/update`](#operation/getLatestVersionFromHash) except it accepts multiple hashes.
          */
         post: operations["getLatestVersionsFromHashes"];
@@ -1287,6 +1287,18 @@ export type components = {
          * @enum {string}
          */
         FileTypeEnum: "required-resource-pack" | "optional-resource-pack" | "sources-jar" | "dev-jar" | "javadoc-jar" | "unknown" | "signature";
+        /**
+         * @description The environment a project or version supports. For an explanation of each environment, see the blog post here: https://modrinth.com/news/article/new-environments/#new-system
+         * @example client_and_server
+         * @enum {string}
+         */
+        EnvironmentEnum: "client_and_server" | "client_only" | "client_only_server_optional" | "singleplayer_only" | "server_only" | "server_only_client_optional" | "dedicated_server_only" | "client_or_server" | "client_or_server_prefers_both" | "unknown";
+        /**
+         * @description The environment a version supports. For an explanation of each environment, see the blog post here: https://modrinth.com/news/article/new-environments/#new-system
+         * @example client_and_server
+         * @enum {string}
+         */
+        EnvironmentInputEnum: "client_and_server" | "client_only" | "client_only_server_optional" | "singleplayer_only" | "server_only" | "server_only_client_optional" | "dedicated_server_only" | "client_or_server" | "client_or_server_prefers_both";
         CreatableVersion: components["schemas"]["BaseVersion"] & {
             /**
              * @description The ID of the project this version is for
@@ -1297,6 +1309,11 @@ export type components = {
             file_parts: string[];
             /** @description The multipart field name of the primary file */
             primary_file?: string;
+            environment?: components["schemas"]["EnvironmentInputEnum"];
+            /** @description A map of file parts to their associated file type, a file type is used for additional files such as sources jars. */
+            file_types?: {
+                [key: string]: components["schemas"]["FileTypeEnum"];
+            };
         };
         CreateVersionBody: {
             data: components["schemas"]["CreatableVersion"];
@@ -1327,6 +1344,7 @@ export type components = {
              * @example null
              */
             changelog_url?: string | null;
+            environment: components["schemas"]["EnvironmentEnum"];
             /** @description A list of files available for download for this version */
             files: components["schemas"]["VersionFile"][];
         };
@@ -1362,6 +1380,11 @@ export type components = {
             sha1?: string;
         };
         GetLatestVersionFromHashBody: {
+            /**
+             * @example [
+             *       "fabric"
+             *     ]
+             */
             loaders: string[];
             /**
              * @example [
@@ -1370,6 +1393,13 @@ export type components = {
              *     ]
              */
             game_versions: string[];
+            /**
+             * @example [
+             *       "release"
+             *     ]
+             * @enum {array}
+             */
+            version_types?: "release" | "alpha" | "beta";
         };
         /** @description A map from hashes to versions */
         HashVersionMap: {
@@ -1404,91 +1434,61 @@ export type components = {
              *     ]
              */
             game_versions: string[];
-        };
-        BaseProject: {
             /**
-             * @description The slug of a project, used for vanity URLs. Regex: ```^[\w!@$()`.+,"\-']{3,64}$```
-             * @example my_project
-             */
-            slug?: string;
-            /**
-             * @description The title or name of the project
-             * @example My Project
-             */
-            title?: string;
-            /**
-             * @description A short description of the project
-             * @example A short description
-             */
-            description?: string;
-            /**
-             * @description A list of the categories that the project has
              * @example [
-             *       "technology",
-             *       "adventure",
-             *       "fabric"
+             *       "release"
              *     ]
+             * @enum {array}
              */
-            categories?: string[];
-            /**
-             * @description The client side support of the project
-             * @example required
-             * @enum {string}
-             */
-            client_side?: "required" | "optional" | "unsupported" | "unknown";
-            /**
-             * @description The server side support of the project
-             * @example optional
-             * @enum {string}
-             */
-            server_side?: "required" | "optional" | "unsupported" | "unknown";
+            version_types?: "release" | "alpha" | "beta";
         };
-        ServerRenderedProject: components["schemas"]["BaseProject"] & {
+        ProjectResult: {
+            /**
+             * @description The ID of the project, encoded as a base62 string
+             * @example AABBCCDD
+             */
+            project_id: string;
             /**
              * @description The project type of the project
              * @example mod
              * @enum {string}
              */
             project_type: "mod" | "modpack" | "resourcepack" | "shader";
-            /** @description The total number of downloads of the project */
-            downloads: number;
             /**
-             * @description The URL of the project's icon
-             * @example https://cdn.modrinth.com/data/AABBCCDD/b46513nd83hb4792a9a0e1fn28fgi6090c1842639.png
+             * @description All project types across every version of the project, unlike `project_type` which only reflects a version-specific type
+             * @example [
+             *       "mod",
+             *       "plugin",
+             *       "datapack"
+             *     ]
              */
-            icon_url?: string | null;
-            /**
-             * @description The RGB color of the project, automatically generated from the project icon
-             * @example 8703084
-             */
-            color?: number | null;
-            /**
-             * @description The ID of the moderation thread associated with this project
-             * @example TTUUVVWW
-             */
-            thread_id?: string;
-            /** @enum {string} */
-            monetization_status?: "monetized" | "demonetized" | "force-demonetized";
-        };
-        ProjectResult: components["schemas"]["ServerRenderedProject"] & {
-            /**
-             * @description The ID of the project
-             * @example AABBCCDD
-             */
-            project_id: string;
+            all_project_types: ("mod" | "resourcepack" | "datapack" | "shader" | "modpack" | "plugin")[];
+            /** @description The title or name of the project */
+            title: string;
+            /** @description A short sentence summarizing the project, no more than a sentence or two. */
+            description: string;
             /**
              * @description The username of the project's author
              * @example my_user
              */
             author: string;
             /**
-             * @description A list of the categories that the project has which are not secondary
+             * @description A list of the featured categories that the project has.
+             * @example [
+             *       "technology",
+             *       "adventure",
+             *       "fabric"
+             *     ]
+             */
+            categories: string[];
+            /**
+             * @description A list of the featured categories that the project has. Equivalent to `categories` on the project itself.
              * @example [
              *       "technology",
              *       "fabric"
              *     ]
              */
-            display_categories?: string[];
+            display_categories: string[];
             /**
              * @description A list of the minecraft versions supported by the project
              * @example [
@@ -1497,58 +1497,118 @@ export type components = {
              *     ]
              */
             versions: string[];
+            /** @description The total number of downloads of the project */
+            downloads: number;
             /** @description The total number of users following the project */
             follows: number;
             /**
+             * @description The URL of the project's icon
+             * @example https://cdn.modrinth.com/data/AABBCCDD/b46513nd83hb4792a9a0e1fn28fgi6090c1842639.png
+             */
+            icon_url: string;
+            /**
              * Format: ISO-8601
-             * @description The date the project was added to search
+             * @description The date the project was created
              */
             date_created: string;
             /**
              * Format: ISO-8601
-             * @description The date the project was last modified
+             * @description The date the latest version of the project was created
              */
             date_modified: string;
             /**
-             * @description The latest version of minecraft that this project supports
-             * @example 1.8.9
+             * @description The ID of the latest version of the project
+             * @example IIJJKKLL
              */
-            latest_version?: string;
+            latest_version: string;
             /**
              * @description The SPDX license ID of a project
              * @example MIT
              */
             license: string;
             /**
-             * @description All gallery images attached to the project
+             * @description All the environments that versions of this project support. Not in any particular order, we recommend using the environment information on a version instead. For an explanation of each environment, see the blog post here: https://modrinth.com/news/article/new-environments/#new-system
+             * @example [
+             *       "client_and_server"
+             *     ]
+             */
+            environment: components["schemas"]["EnvironmentEnum"][];
+            /**
+             * @description A list of images that have been uploaded to the project's gallery
              * @example [
              *       "https://cdn.modrinth.com/data/AABBCCDD/images/009b7d8d6e8bf04968a29421117c59b3efe2351a.png",
              *       "https://cdn.modrinth.com/data/AABBCCDD/images/c21776867afb6046fdc3c21dbcf5cc50ae27a236.png"
              *     ]
              */
-            gallery?: string[];
+            gallery: string[];
+            /**
+             * @description The slug of a project, used for vanity URLs. Regex: ```^[\w!@$()`.+,"\-']{3,64}$```
+             * @example my_project
+             */
+            slug?: string | null;
+            /**
+             * @description The ID of the project's author
+             * @example EEFFGGHH
+             */
+            author_id?: string | null;
+            /**
+             * @description The name of the organization that owns this project
+             * @example my_org
+             */
+            organization?: string | null;
+            /**
+             * @description The ID of the organization that owns this project
+             * @example AABBCCDD
+             */
+            organization_id?: string | null;
             /** @description The featured gallery image of the project */
             featured_gallery?: string | null;
+            /**
+             * @description The RGB color of the project, automatically generated from the project icon
+             * @example 8703084
+             */
+            color?: number | null;
+            /**
+             * @deprecated
+             * @description Deprecated - use `environment` instead. The client side support of the project
+             * @example required
+             * @enum {string}
+             */
+            client_side: "required" | "optional" | "unsupported" | "unknown";
+            /**
+             * @deprecated
+             * @description Deprecated - use `environment` instead. The server side support of the project
+             * @example optional
+             * @enum {string}
+             */
+            server_side: "required" | "optional" | "unsupported" | "unknown";
         };
-        NonSearchProject: components["schemas"]["BaseProject"] & {
+        NonSearchProject: {
+            /**
+             * @description The slug of a project, used for vanity URLs. Regex: ```^[\w!@$()`.+,"\-']{3,64}$```
+             * @example my_project
+             */
+            slug?: string;
+            /** @description The title or name of the project */
+            title?: string;
+            /** @description A short sentence summarizing the project, no more than a sentence or two. */
+            description?: string;
             /**
              * @description A long form description of the project
              * @example A long body describing my project in detail
              */
             body?: string;
             /**
-             * @description The status of the project
-             * @example approved
-             * @enum {string}
+             * @description A list of the featured categories that the project has.
+             * @example [
+             *       "technology",
+             *       "adventure",
+             *       "fabric"
+             *     ]
              */
-            status?: "approved" | "archived" | "rejected" | "draft" | "unlisted" | "processing" | "withheld" | "scheduled" | "private" | "unknown";
+            categories?: string[];
             /**
-             * @description The requested status when submitting for review or scheduling the project for release
-             * @enum {string|null}
-             */
-            requested_status?: "approved" | "archived" | "unlisted" | "private" | "draft" | null;
-            /**
-             * @description A list of categories which are searchable but non-primary
+             * @description A list of additional categories that the project also has. These are supplementary to the featured categories, and does not include them again.
              * @example [
              *       "technology",
              *       "adventure",
@@ -1557,27 +1617,52 @@ export type components = {
              */
             additional_categories?: string[];
             /**
+             * @description The status of the project
+             * @example approved
+             * @enum {string}
+             */
+            status?: "approved" | "archived" | "rejected" | "draft" | "unlisted" | "processing" | "withheld" | "scheduled" | "private" | "unknown";
+            /**
+             * @description The requested status when submitting for review or scheduling the project for release. Approved status refers to "Public" visibility.
+             * @enum {string|null}
+             */
+            requested_status?: "approved" | "archived" | "unlisted" | "private" | "draft" | null;
+            /**
              * @description An optional link to where to submit bugs or issues with the project
-             * @example https://github.com/my_user/my_project/issues
+             * @example https://github.com/modrinth/code/issues
              */
             issues_url?: string | null;
             /**
              * @description An optional link to the source code of the project
-             * @example https://github.com/my_user/my_project
+             * @example https://github.com/modrinth/code
              */
             source_url?: string | null;
             /**
              * @description An optional link to the project's wiki page or other relevant information
-             * @example https://github.com/my_user/my_project/wiki
+             * @example https://github.com/modrinth/code/wiki
              */
             wiki_url?: string | null;
             /**
-             * @description An optional invite link to the project's discord
-             * @example https://discord.gg/AaBbCcDd
+             * @description An optional invite link to the project's discord.
+             * @example https://discord.gg/modrinth
              */
             discord_url?: string | null;
             /** @description A list of donation links for the project */
             donation_urls?: components["schemas"]["ProjectDonationURL"][];
+            /**
+             * @deprecated
+             * @description Deprecated - use `environment` instead.
+             * @example required
+             * @enum {string}
+             */
+            client_side?: "required" | "optional" | "unsupported";
+            /**
+             * @deprecated
+             * @description Deprecated - use `environment` instead.
+             * @example optional
+             * @enum {string}
+             */
+            server_side?: "required" | "optional" | "unsupported";
         };
         ProjectDonationURL: {
             /**
@@ -1613,6 +1698,7 @@ export type components = {
         };
         CreatableProject: components["schemas"]["ModifiableProject"] & {
             /**
+             * @description The project type of the project
              * @example modpack
              * @enum {string}
              */
@@ -1658,7 +1744,7 @@ export type components = {
              */
             ordering?: number;
         } | null;
-        Project: components["schemas"]["NonSearchProject"] & components["schemas"]["ServerRenderedProject"] & {
+        Project: {
             /**
              * @description The ID of the project, encoded as a base62 string
              * @example AABBCCDD
@@ -1669,45 +1755,52 @@ export type components = {
              * @example MMNNOOPP
              */
             team: string;
+            /** @description The title or name of the project */
+            title: string;
+            /** @description A short sentence summarizing the project, no more than a sentence or two. */
+            description: string;
             /**
-             * @deprecated
-             * @description The link to the long description of the project. Always null, only kept for legacy compatibility.
-             * @default null
-             * @example null
+             * @description A long form description of the project
+             * @example A long body describing my project in detail
              */
-            body_url: string | null;
-            moderator_message?: components["schemas"]["ModeratorMessage"];
+            body: string;
             /**
-             * Format: ISO-8601
-             * @description The date the project was published
+             * @description The status of the project
+             * @example approved
+             * @enum {string}
              */
-            published: string;
+            status: "approved" | "archived" | "rejected" | "draft" | "unlisted" | "processing" | "withheld" | "scheduled" | "private" | "unknown";
             /**
-             * Format: ISO-8601
-             * @description The date the project was last updated
+             * @description The project type of the project
+             * @example mod
+             * @enum {string}
              */
-            updated: string;
+            project_type: "mod" | "modpack" | "resourcepack" | "shader";
             /**
-             * Format: ISO-8601
-             * @description The date the project's status was set to an approved status
-             */
-            approved?: string | null;
-            /**
-             * Format: ISO-8601
-             * @description The date the project's status was submitted to moderators for review
-             */
-            queued?: string | null;
-            /** @description The total number of users following the project */
-            followers: number;
-            license?: components["schemas"]["ProjectLicense"];
-            /**
-             * @description A list of the version IDs of the project (will never be empty unless `draft` status)
+             * @description A list of the featured categories that the project has.
              * @example [
-             *       "IIJJKKLL",
-             *       "QQRRSSTT"
+             *       "technology",
+             *       "adventure",
+             *       "fabric"
              *     ]
              */
-            versions?: string[];
+            categories: string[];
+            /**
+             * @description A list of additional categories that the project also has. These are supplementary to the featured categories, and does not include them again.
+             * @example [
+             *       "technology",
+             *       "adventure",
+             *       "fabric"
+             *     ]
+             */
+            additional_categories: string[];
+            /**
+             * @description All the environments that versions of this project support. Not in any particular order, we recommend using the environment information on a version instead. For an explanation of each environment, see the blog post here: https://modrinth.com/news/article/new-environments/#new-system
+             * @example [
+             *       "client_and_server"
+             *     ]
+             */
+            environment: components["schemas"]["EnvironmentEnum"][];
             /**
              * @description A list of all of the game versions supported by the project
              * @example [
@@ -1717,22 +1810,135 @@ export type components = {
              *       "1.19.3"
              *     ]
              */
-            game_versions?: string[];
+            game_versions: string[];
             /**
-             * @description A list of all of the loaders supported by the project
+             * @description A list of all of the loaders supported by the project. These vary based on project type.
              * @example [
-             *       "forge",
-             *       "fabric",
-             *       "quilt"
+             *       "neoforge",
+             *       "fabric"
              *     ]
              */
-            loaders?: string[];
+            loaders: string[];
+            /**
+             * @description A list of the version IDs of the project
+             * @example [
+             *       "IIJJKKLL",
+             *       "QQRRSSTT"
+             *     ]
+             */
+            versions: string[];
+            license: components["schemas"]["ProjectLicense"];
+            /**
+             * Format: ISO-8601
+             * @description The date the project was created
+             */
+            published: string;
+            /**
+             * Format: ISO-8601
+             * @description The date the latest version of the project was created
+             */
+            updated: string;
+            /** @description The total number of downloads of the project */
+            downloads: number;
+            /** @description The total number of users following the project */
+            followers: number;
             /** @description A list of images that have been uploaded to the project's gallery */
-            gallery?: components["schemas"]["GalleryImage"][];
+            gallery: components["schemas"]["GalleryImage"][];
+            /**
+             * @description The ID of the moderation thread associated with this project
+             * @example TTUUVVWW
+             */
+            thread_id: string;
+            /** @enum {string} */
+            monetization_status: "monetized" | "demonetized" | "force-demonetized";
+            /**
+             * @description The slug of a project, used for vanity URLs. Regex: ```^[\w!@$()`.+,"\-']{3,64}$```
+             * @example my_project
+             */
+            slug?: string | null;
+            /**
+             * @description The ID of the organization that owns this project
+             * @example AABBCCDD
+             */
+            organization?: string | null;
+            /**
+             * @description The requested status when submitting for review or scheduling the project for release. Approved status refers to "Public" visibility.
+             * @enum {string|null}
+             */
+            requested_status?: "approved" | "archived" | "unlisted" | "private" | "draft" | null;
+            /**
+             * Format: ISO-8601
+             * @description The date the project was first published
+             */
+            approved?: string | null;
+            /**
+             * Format: ISO-8601
+             * @description The date the project's status was submitted to moderators for review
+             */
+            queued?: string | null;
+            /**
+             * @description The URL of the project's icon
+             * @example https://cdn.modrinth.com/data/AABBCCDD/b46513nd83hb4792a9a0e1fn28fgi6090c1842639.png
+             */
+            icon_url?: string | null;
+            /**
+             * @description The URL of the project's icon without CDN transforms applied
+             * @example https://cdn.modrinth.com/data/AABBCCDD/b46513nd83hb4792a9a0e1fn28fgi6090c1842639-raw.png
+             */
+            raw_icon_url?: string | null;
+            /**
+             * @description The RGB color of the project, automatically generated from the project icon
+             * @example 8703084
+             */
+            color?: number | null;
+            /**
+             * @description An optional link to where to submit bugs or issues with the project
+             * @example https://github.com/modrinth/code/issues
+             */
+            issues_url?: string | null;
+            /**
+             * @description An optional link to the source code of the project
+             * @example https://github.com/modrinth/code
+             */
+            source_url?: string | null;
+            /**
+             * @description An optional link to the project's wiki page or other relevant information
+             * @example https://github.com/modrinth/code/wiki
+             */
+            wiki_url?: string | null;
+            /**
+             * @description An optional invite link to the project's discord.
+             * @example https://discord.gg/modrinth
+             */
+            discord_url?: string | null;
+            /** @description A list of donation links for the project */
+            donation_urls?: components["schemas"]["ProjectDonationURL"][] | null;
+            /**
+             * @deprecated
+             * @description Deprecated - use `environment` instead.
+             * @example required
+             * @enum {string}
+             */
+            client_side: "required" | "optional" | "unsupported" | "unknown";
+            /**
+             * @deprecated
+             * @description Deprecated - use `environment` instead.
+             * @example optional
+             * @enum {string}
+             */
+            server_side: "required" | "optional" | "unsupported" | "unknown";
+            /**
+             * @deprecated
+             * @description Deprecated - The link to the long description of the project. Always null, only kept for legacy compatibility.
+             * @default null
+             * @example null
+             */
+            body_url: string | null;
+            moderator_message?: components["schemas"]["ModeratorMessage"];
         };
         /**
          * @deprecated
-         * @description A message that a moderator sent regarding the project
+         * @description Deprecated - A message that a moderator sent regarding the project
          * @example null
          */
         ModeratorMessage: {
@@ -2480,11 +2686,13 @@ export interface operations {
                  *
                  *     These are the most commonly used facet types:
                  *     - `project_type`
+                 *     - `all_project_types` (matches against every project type across all of the project's versions, not just the primary/version-specific type)
                  *     - `categories` (loaders are lumped in with categories in search)
                  *     - `versions`
-                 *     - `client_side`
-                 *     - `server_side`
                  *     - `open_source`
+                 *     - `environment`
+                 *     - `client_side` (deprecated - use `environment` instead)
+                 *     - `server_side` (deprecated - use `environment` instead)
                  *
                  *     Several others are also available for use, though these should not be used outside very specific use cases.
                  *     - `title`
@@ -2493,11 +2701,8 @@ export interface operations {
                  *     - `project_id`
                  *     - `license`
                  *     - `downloads`
-                 *     - `color`
                  *     - `created_timestamp` (uses Unix timestamp)
                  *     - `modified_timestamp` (uses Unix timestamp)
-                 *     - `date_created` (uses ISO-8601 timestamp)
-                 *     - `date_modified` (uses ISO-8601 timestamp)
                  *
                  *     In order to then use these facets, you need a value to filter by, as well as an operation to perform on this value.
                  *     The most common operation is `:` (same as `=`), though you can also use `!=`, `>=`, `>`, `<=`, and `<`.
