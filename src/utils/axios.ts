@@ -1,4 +1,4 @@
-import { AxiosInstance } from 'axios';
+import type { AxiosInstance } from 'axios';
 
 export function reasonableErrorMessages(axios: AxiosInstance) {
   axios.interceptors.response.use(

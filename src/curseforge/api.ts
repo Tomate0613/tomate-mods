@@ -1,4 +1,9 @@
-import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
+import type {
+  AxiosDefaults,
+  AxiosInstance,
+  AxiosRequestConfig,
+  CreateAxiosDefaults,
+} from 'axios';
 import { BodyFor, PathsFor, ResponseFor, UrlFor } from '../utils/types';
 import { components as Components, paths as Paths } from './openapi/types';
 import { reasonableErrorMessages } from '../utils/axios';
@@ -26,22 +31,33 @@ export type G<A extends CurseforgeGetUrl> = A;
 export type P<A extends CurseforgePostUrl> = A;
 
 export class CurseforgeApi {
-  private api: AxiosInstance;
+  private _api?: AxiosInstance;
+  private apiSettings: CreateAxiosDefaults;
 
   constructor(userAgent: string, apiKey?: string) {
-    this.api = axios.create({
+    this.apiSettings = {
       baseURL: API_BASE_URL,
       headers: {
         'User-Agent': userAgent,
         'x-api-key': apiKey,
       },
-    });
-
-    reasonableErrorMessages(this.api);
+    };
   }
 
-  rawGet<T>(url: string, config?: AxiosRequestConfig) {
-    return this.api.get<T>(url, config);
+  private async api() {
+    if (this._api) {
+      return this._api;
+    }
+
+    this._api = (await import('axios')).create(this.apiSettings);
+
+    reasonableErrorMessages(this._api);
+
+    return this._api;
+  }
+
+  async rawGet<T>(url: string, config?: AxiosRequestConfig) {
+    return (await this.api()).get<T>(url, config);
   }
 
   async get<T extends CurseforgeGetUrl>(
@@ -51,8 +67,8 @@ export class CurseforgeApi {
     return this.rawGet<GetReturnType<T>>(url, config);
   }
 
-  rawPost<T>(url: string, data?: any, config?: AxiosRequestConfig) {
-    return this.api.post<T>(url, data, config);
+  async rawPost<T>(url: string, data?: any, config?: AxiosRequestConfig) {
+    return (await this.api()).post<T>(url, data, config);
   }
 
   async post<T extends CurseforgePostUrl>(

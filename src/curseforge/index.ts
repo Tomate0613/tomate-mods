@@ -1,4 +1,3 @@
-import axios from 'axios';
 import * as T from '../types';
 import type { IncomingMessage } from 'node:http';
 import fs from 'node:fs';
@@ -156,7 +155,7 @@ export class CurseforgeProvider implements T.ApiProvider {
       return this.downloadUsingWindow(version, path, options.popup);
     }
 
-    const { data } = await axios.get<IncomingMessage>(file.url, {
+    const { data } = await (await import("axios")).default.get<IncomingMessage>(file.url, {
       responseType: 'stream',
     });
     const writeStream = fs.createWriteStream(path);

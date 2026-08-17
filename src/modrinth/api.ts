@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import type { AxiosInstance, AxiosRequestConfig, AxiosResponse, CreateAxiosDefaults } from 'axios';
 import PQueue from 'p-queue';
 import { components as Components, paths as Paths } from './openapi/types';
 import { PathsFor, ResponseFor, UrlFor } from '../utils/types';
@@ -21,22 +21,33 @@ class ModrinthApi {
   private queue: PQueue;
   private remainingRequests: number;
   private resetTime: number;
-  private api: AxiosInstance;
+  private apiSettings: CreateAxiosDefaults;
+  private _api?: AxiosInstance;
 
   constructor(userAgent: string, apiKey?: string) {
     this.queue = new PQueue({ concurrency: CONCURRENCY });
     this.remainingRequests = 300;
     this.resetTime = 0;
 
-    this.api = axios.create({
+    this.apiSettings = {
       baseURL: API_BASE_URL,
       headers: {
         'User-Agent': userAgent,
         Authorization: apiKey,
       },
-    });
+    };
+  }
 
-    reasonableErrorMessages(this.api);
+  private async api() {
+    if(this._api) {
+      return this._api;
+    }
+
+    this._api = (await import('axios')).create(this.apiSettings);
+
+    reasonableErrorMessages(this._api);
+
+    return this._api;
   }
 
   private async updateRateLimits(response: AxiosResponse) {
@@ -51,7 +62,7 @@ class ModrinthApi {
         await new Promise((resolve) => setTimeout(resolve, waitTime * 1000));
       }
 
-      const response = await this.api.get<T>(url, config);
+      const response = await (await this.api()).get<T>(url, config);
       this.updateRateLimits(response);
       return response;
     };
