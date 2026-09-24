@@ -34,13 +34,12 @@
   "homepage": "https://github.com/Tomate0613/tomate-mods#readme",
   "dependencies": {
     "@xmcl/unzip": "^2.1.2",
-    "axios": "^1.18.0",
+    "axios": "^1.20.0",
     "murmur2": "^1.0.2",
     "p-queue": "^9.3.0"
   },
   "devDependencies": {
-    "@types/node": "^26.2.0",
-    "dotenv": "^17.4.2",
+    "@types/node": "^26.6.2",
     "typescript": "^7.0.2"
   }
 }
