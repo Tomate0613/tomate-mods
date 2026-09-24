@@ -3,7 +3,12 @@ import type { IncomingMessage } from 'node:http';
 import fs from 'node:fs';
 import murmur2 from 'murmur2';
 import { CurseforgeApi, G, P, Schema } from './api';
-import { FileRelationType, FileReleaseType, HashAlgo } from './openapi/types';
+import {
+  FileRelationType,
+  FileReleaseType,
+  FileStatus,
+  HashAlgo,
+} from './openapi/types';
 import {
   CurseforgeSearchQueryParamsBuilder,
   CurseforgeVersionQueryParamsBuilder,
@@ -155,7 +160,9 @@ export class CurseforgeProvider implements T.ApiProvider {
       return this.downloadUsingWindow(version, path, options.popup);
     }
 
-    const { data } = await (await import("axios")).default.get<IncomingMessage>(file.url, {
+    const { data } = await (
+      await import('axios')
+    ).default.get<IncomingMessage>(file.url, {
       responseType: 'stream',
     });
     const writeStream = fs.createWriteStream(path);
@@ -210,11 +217,26 @@ export class CurseforgeProvider implements T.ApiProvider {
 
     if (!fingerprintMatches) throw new Error('Failed to get fingerprints');
     const match = fingerprintMatches[0];
-    if (!match) throw new Error('Failed to get fingerprints');
+    if (!match) throw new Error('No match found');
 
     const { file } = match;
 
-    return this.mapVersion(file);
+    const version = this.mapVersion(file);
+
+    if (!file.isAvailable) {
+      throw new Error('Matched file is not available');
+    }
+
+    const {
+      data: { data: project },
+    } = await this.api.get<G<'/v1/mods/{}'>>(`/v1/mods/${file.modId}`);
+
+    // TODO Is this check necessary
+    if (!project.isAvailable) {
+      throw new Error('Matched project is not available');
+    }
+
+    return version;
   }
 
   async search(queryParams: string) {
